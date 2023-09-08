@@ -94,34 +94,49 @@ void addLast(lista* Head){
 	end->next=novo;
 	novo->next=NULL;
 }
+void catList(lista*L, lista*cola){//cola se refere a um no head de outra lista
+	//achar o ultimo nó de L e fazelo apontar para o nó cola
+	lista*p=L;
+	while(p->next!=NULL){
+		p=p->next;
+	}
+	p->next=cola;
+}
 int main(){
 	lista* L=NULL;
 	char insere, remove;
 	int code;
-	printf("deseja adicionar novos livros s(sim) n(nao)");
+	printf("deseja adicionar um livro s(sim) n(nao)");
 	scanf("%c", &insere);	
-	while(insere=='s'){
-		L=add(L);
-		printf("deseja adicionar novos livros s(sim) n(nao)\n");
+	while(insere=='s' || insere=='l'){//testando a funcão add e addLast
+		if(insere=='s'){
+			L=add(L);	
+		}
+		else{
+			addLast(L);
+		}
+		printf("deseja adicionar novo livro no inico s(sim) no final l(last) n(nao)\n");
 		fflush(stdin);
 		scanf("%c", &insere);
 	}
-	printL(L);
+	printL(L);//exibe  todos os adicionados
 	printf("deseja remover elementos da lista: s(sim) !s(nao)\n");
 	fflush(stdin);
 	scanf("%c", &remove);
-	while(remove=='s'){
+	while(remove=='s'){//testando a função del (deleta um nó)
 		printf("codigo do livro:   ");
 		scanf("%d", &code);
 		L=del(L, code);
-		printL(L);
+		printL(L);//a cada remoção é mostrado os nós restantes
 		printf("deseja remover elementos da lista: s(sim) !s(nao)\n");
 		fflush(stdin);
 		scanf("%c", &remove);
 	}
-	lista* cpyL=NULL;
+	lista* cpyL=NULL;//copia a lista restante com a função cpy e exibe
 	cpyL=cpy(L, cpyL);
 	printL(cpyL);
+	catList(L, cpyL);
+	printL(L);
 	return 0;
 }
 
