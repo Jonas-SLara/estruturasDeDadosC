@@ -2,7 +2,7 @@
 #include <stdlib.h>
 /*lista duplamente encadeada com funcoes para adicionar elementos, 
 buscar na lista, imprimir na ordem normal ou inversa, remover elementos
-da lista, concatenar 2 listas, copiar uma lista encadeada para um ponteiro*/
+da lista, concatenar 2 listas*/
 struct dados{
 	int value;
 	struct dados* next;
@@ -10,15 +10,15 @@ struct dados{
 };
 typedef struct dados dados;
 dados* buscaDL(dados* L, int y){//retorna o primeiro endereço onde ha este valor y
-	dados* adress=L;
-	while(adress!=NULL && adress->value==y){
-		adress=adress->next;
+	dados* p=L;
+	while(p!=NULL && p->value!=y){
+		p=p->next;
 	}
-	if(adress==NULL){
+	if(p==NULL){
 		return NULL;
 	}
 	else{
-		return adress;
+		return p;
 	}
 }
 dados* addDL(dados* L, int x){
@@ -68,14 +68,26 @@ dados* delDL(dados*L, int x){//deleta o primeiro a ser encontrado
 	}
 	if(p==L){//esta no primeiro nó da lista
 		L=L->next;
+		L->ant=NULL;
 		free(p);
 		return L;
 	}
 	else{//entre dois nós
 		p->ant->next=p->next;
+		p->next->ant=p->ant;
 		free(p);
 		return L;
 	}
+}
+void catList(dados* destino, dados* origem){
+	//busca o ultimo elemento de onde sera colado
+	dados* p=destino;
+	while(p->next!=NULL){
+		p=p->next;
+	}
+	//faz o ultimo apontar para o inicio da outra lista e o inicio  da outra para o ultimo
+	p->next=origem;
+	origem->ant=p;
 }
 
 int main(){
@@ -85,6 +97,17 @@ int main(){
 	Head=addDL(Head, 3);
 	Head=addDL(Head, 4);
 	Head=addDL(Head, 5);
+	//deleta 2elementos
+	Head=delDL(Head, 3);
+	Head=delDL(Head, 5);
+	printDL(Head);
+	printDL_(Head);
+	dados* EX=NULL;
+	EX=addDL(EX, 20);
+	EX=addDL(EX, 30);
+	EX=addDL(EX, 40);
+	printDL(EX);
+	catList(Head, EX);
 	printDL(Head);
 	printDL_(Head);
 	return 0;
