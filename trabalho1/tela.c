@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>
-#include <conio.h>
+#include "jogo.h"
 //cada tela possui aplicativos e o mesmo não pode estar em 2+ telas
 struct app{
 	char nome[20];
@@ -153,7 +152,7 @@ void view(app *P){
 	int n=0;
 	if(a!=NULL){
 		do{
-			printf("%s\t", a->nome);
+			printf("| %s |\t", a->nome);
 			n++;
 			a=a->next;
 		}while(a!=NULL && n<2);
@@ -193,20 +192,25 @@ tela *before(tela *P){
 }
 
 char operar(){//comando de operações//
-	printf("**************************************");
-	printf("\n<<-b i(instala) p(parar) d(deleta) n-->\n");
+	printf("\n**************************************");
+	printf("\n<<<<----b         n---->>>>\n");
+	printf("d(deletar)   i(instalar)  p(parar)  e(executa)\n");
 	char option;
 	do{//validação do caractere
 		fflush(stdin);
 		scanf("%c", &option);
 	}while(option != 'b' && option!='p'&& option!='i' 
-	&& option!='d' && option!='n');
+	&& option!='d' && option!='n' && option!='e');
 	system("cls");
 	return option;
 }
 
 app *del(app*origem, app* HEAD){
-	if(origem->bef==NULL){//se trata do primeiro elemento
+	if(origem->bef==NULL && origem->next==NULL){//ficara vazia
+		free(origem);
+		return NULL;
+	}
+	else if(origem->bef==NULL){//se trata do primeiro elemento
 		HEAD=origem->next;
 		HEAD->bef=NULL;
 		free(origem);
@@ -225,21 +229,52 @@ app *del(app*origem, app* HEAD){
 	}
 }
 
-void desinstala(tela *H, char nome[20]){
+void mov(tela *P){
+	if(P->next!=NULL){//se esta não é a ultima tela mover elementos
+		tela *T=P;
+		app *last=get_last_app(T->L);	
+		last->next=T->next->L;//apontar para o primeiro da proxima tela	
+		T->next->L->bef=last;//vice versa
+		if(T->next->L->next==NULL){
+		//se não há ninguem depois, então estamos na ultima tela que não é a main, mover e deleta-la
+			free(T->next);
+			T->next=NULL;
+			T->cont++;
+		}
+		else{
+			T->next->L=T->next->L->next;//o nó cabeça da outra tela vira o segundo
+			T->next->L->bef=NULL;//este nó cabeça agora não aponta mais para o seu anterior
+			last->next->next=NULL;//agora limpa o campo next deste ultimo
+			T->next->cont--;
+			T->cont++;
+			T=T->next;//tela seguinte
+			mov(T);//recursividade
+		}	
+	}	
+}
+
+tela* desinstala(tela *H, char nome[20]){
 	tela *p=busca(H, nome);//em que tela vou remover
 	if(p==NULL){
 		printf("nenhum elemento achado\n");
+		return H;
 	}
 	else{
 		app *a=get_app(p->L, nome);
 		printf("%x\t%x\t%s\n",p,  a, a->nome);
 		p->L=del(a, p->L);
 		p->cont--;
+		if(p->L==NULL && p!=H){//apenas a ultima tela podera ter espaços em brancos deletar desde que não seja a principal
+			p->bef->next=NULL;
+			free(p);
+		}
+		mov(p);
+		return H;//voltara para a tela principal quando chamar a view passando P=H
+		//impedir que o usuario delete a tela onde esta
 	}
 }
 
 int main(){
-	setlocale(LC_ALL, "portuguese");
 	tela *H =NULL;
 	H=inicializar(H);
 	tela *P =H; 
@@ -266,7 +301,7 @@ int main(){
 				printf("nome do app: ");
 				fflush(stdin);
 				gets(app);
-				desinstala(H, app);
+				P=desinstala(H, app);
 				break;
 			case 'b':
 				P=before(P);
@@ -275,6 +310,9 @@ int main(){
 			case 'n':
 				P=next(P);
 				printf("tela atual: %x\n\n", P);
+				break;
+			case 'e':
+				jogo();
 				break;	
 		}
 		getch();
