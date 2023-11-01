@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "jogo.h"
+#include <conio.h>
 //cada tela possui aplicativos e o mesmo não pode estar em 2+ telas
 struct app{
 	char nome[20];
@@ -12,7 +13,8 @@ struct app{
 typedef struct app app;
 
 struct tela{
-	int cont; //contador de apps em cada tela, max=6	
+	int cont; //contador de apps em cada tela, max=6
+	int info; //numero da tela	
 	struct tela *next;
 	struct tela *bef;
 	app *L;	//ponteiro para o nó cabeçã da lista de aplicativos
@@ -36,10 +38,8 @@ tela *get_last_tela(tela *H){//antes de achar o ultimo app é preciso achar a ult
 	if(P->next==NULL){
 		return P;
 	}
-	else{
-		P=get_last_tela(P->next);
-		return P;
-	}	
+	P=get_last_tela(P->next);
+	return P;	
 }
 
 app *get_app(app *q, char nome[20]){
@@ -73,11 +73,11 @@ tela *busca(tela *H, char nome[20]){//retorna NULL se não há elemento com este n
 
 app *add(app *P, char nome[20]){//P é o nó cabeça da lista da ultima tela criada
 	app *novo=(app*)malloc(sizeof(app));
-	novo->next=NULL;
+	novo->next=NULL;//ira inserir no final
 	strcpy(novo->nome, nome);
 	if(P==NULL){//caso a tela principal ou uma nova esta vazia
 		novo->bef=NULL;
-		printf("foi carregado um app %s %x\n", novo->nome, novo);
+		printf("--> foi carregado um app %s\n", novo->nome);
 		return novo;
 	}
 	else{//insere no final da lista
@@ -85,7 +85,7 @@ app *add(app *P, char nome[20]){//P é o nó cabeça da lista da ultima tela criada
 		q=get_last_app(q);//obtem o endereço do ultimo app na tela em que esta
 		novo->bef=q;
 		q->next=novo;
-		printf("foi carregado um app %s %x\n", novo->nome, novo);
+		printf("--> foi carregado um app %s\n", novo->nome);
 		return P;
 	}
 }
@@ -93,61 +93,84 @@ app *add(app *P, char nome[20]){//P é o nó cabeça da lista da ultima tela criada
 tela *new_tela(tela *P){//P aponta para a ultima tela criada
 	tela *novo=(tela*)malloc(sizeof(tela));
 	//etapas para a criação de uma tela antes de adicionar o 1 app
-	novo->next=NULL;
+	novo->next=NULL;//ficara no final
 	novo->bef=P;
 	P->next=novo;
 	novo->cont=0; 
-	novo->L=NULL;
+	novo->L=NULL;//inicia em 0apps
+	novo->info=P->info+1; //permite a ordem crescente dos elementos
 	return novo;
 }
 
-void instala(tela *H, char nome[20]){//na ultima tela criada, insere no final
-	tela *q = busca(H, nome);//se ha um app ja instalado retorna !=NULL
-	if(q!=NULL){
-		printf("\nelemento repetido na tela %x\n", q);
-	}
-	else{
-		tela *p = H;
-		p=get_last_tela(p);	//acha a ultima tela criada
-		if(p->cont==6){
-			p=new_tela(p);
-			p->L=add(p->L, nome);
-			p->cont++;
-			printf("criado uma nova tela:  %x\n", p);
+tela *instala(tela *H, char op){//na ultima tela criada, insere no final até quiser que pare
+	tela *q;
+	if(op=='i'){
+		printf("instalando\n");
+		printf("**************************************\n");
+		char nome[20];
+		printf("nome do app: ");
+		fflush(stdin);
+		gets(nome);
+		strlwr(nome);//poe tudo em letras minusculas
+		q = busca(H, nome);//se ha um app ja instalado retorna !=NULL
+		
+		if(q!=NULL){
+			printf("\nelemento repetido na tela %d\n", q->info);
 		}
-		else{
-			p->L=add(p->L, nome);
-			p->cont++;//incrementa 
+		else{//continuar procedimento de instalação
+			q=H;//inicializar q para o algoritmo de inserção na pilha
+			q=get_last_tela(q);//obtem a ultima tela criada
+			
+			//q->L forma de obter o HEAD da lista de apps da tela sem uma nova variavel
+			if(q->cont==6){	//testa se esta tela já esta cheia, cria uma nova
+				q=new_tela(q);
+				q->L=add(q->L, nome);//add controla cada caso de inserção, buscando a ultima posição
+				q->cont++;
+				printf("--> criado tela %d\n", q->info);
+			}
+			else{
+				q->L=add(q->L, nome);
+				q->cont++;//incrementa 
+			}
 		}
+		printf("continuar i(instalar mais) !i(parar)");
+		fflush(stdin);
+		scanf("%c", &op);
+		system("cls");
+		instala(H, op);
+		return H;
 	}
+	return H;
 }
 
 tela *inicializar(tela *H){ //aloca a tela inicial na memoria + lista com alguns aplicativos
 	H =(tela*)malloc(sizeof(tela));
-	H->cont=0;
 	H->L=NULL;
 	H->next=NULL;
 	H->bef=NULL;
+	H->info=1;
 	char app1[20];
 	char app2[20];
 	char app3[20];
 	char app4[20];
 	char app5[20];
-	strcpy(app1, "configuracoes");
+	strcpy(app1, "eclipse");
 	strcpy(app2, "calculadora");
 	strcpy(app3, "calendario");
-	strcpy(app4, "system32");
-	strcpy(app5, "jogo da velha");
-	instala(H, app1);
-	instala(H, app2);
-	instala(H, app3);
-	instala(H, app4);
-	instala(H, app5);
+	strcpy(app4, "duolingo");
+	strcpy(app5, "config");
+	H->L=add(H->L, app1);
+	H->L=add(H->L, app2);
+	H->L=add(H->L, app3);
+	H->L=add(H->L, app4);
+	H->L=add(H->L, app5);
+	H->cont=5;
+	getch();
 	system("cls");
 	return H;
 }
 
-void view(app *P){
+void view(app *P){//P é o nó HEAD de uma lista de apps em uma tela
 	app *a = P;
 	int n=0;
 	if(a!=NULL){
@@ -161,34 +184,15 @@ void view(app *P){
 	}
 }
 
-tela *next(tela *P){
-	if(P->next==NULL){
+tela *go(tela *P, char op){//função que interpreta para qual tela migrar o ponteiro P
+	if((P->next==NULL && op=='n') || (P->bef==NULL && op=='b')){
 		printf("esta tela ainda não existe\n");
 		system("pause");
 		system("cls");
-		//view(P->L);//volta para a tela de onde veio
-		return P;
+		return P; //volta para a tela de onde partiu
 	}
-	else{
-		P=P->next;
-		//view(P->L);
-		return P;
-	}
-}
-
-tela *before(tela *P){
-	if(P->bef==NULL){
-		printf("esta tela ainda não existe\n");
-		system("pause");
-		system("cls");
-		//view(P->L);
-		return P;
-	}
-	else{
-		P=P->bef;
-		//view(P->L);
-		return P;
-	}
+	P= (op=='n')? P->next:P->bef;//se não for n é b, não ha uma outra opção
+	return P;
 }
 
 char operar(){//comando de operações//
@@ -240,38 +244,63 @@ void mov(tela *P){
 			free(T->next);
 			T->next=NULL;
 			T->cont++;
+			//acaba aqui e ela não chama mais a si mesmo
 		}
 		else{
 			T->next->L=T->next->L->next;//o nó cabeça da outra tela vira o segundo
 			T->next->L->bef=NULL;//este nó cabeça agora não aponta mais para o seu anterior
 			last->next->next=NULL;//agora limpa o campo next deste ultimo
-			T->next->cont--;
-			T->cont++;
+			T->next->cont--;//diminui um app da proxima
+			T->cont++;//aumenta um app de onde esta, de onde começou
 			T=T->next;//tela seguinte
 			mov(T);//recursividade
 		}	
 	}	
 }
 
-tela* desinstala(tela *H, char nome[20]){
-	tela *p=busca(H, nome);//em que tela vou remover
-	if(p==NULL){
-		printf("nenhum elemento achado\n");
-		return H;
-	}
-	else{
-		app *a=get_app(p->L, nome);
-		printf("%x\t%x\t%s\n",p,  a, a->nome);
-		p->L=del(a, p->L);
-		p->cont--;
-		if(p->L==NULL && p!=H){//apenas a ultima tela podera ter espaços em brancos deletar desde que não seja a principal
-			p->bef->next=NULL;
-			free(p);
+tela* desinstala(tela *H, char op){//permite desinstalar enquanto o usuario querer
+	app *a;
+	tela *p;
+	if(op=='d'){
+		printf("deletanto\n");
+		printf("**************************************\n");
+		
+		char app[20];
+		printf("nome do app: ");
+		fflush(stdin);
+		gets(app);
+		strlwr(app);//tambem considera apenas minusculas
+		p=busca(H, app);//em que tela vou remover
+		
+		if(p==NULL){//caso não há
+			printf("nenhum elemento achado\n");
+			//return H;
 		}
-		mov(p);
-		return H;//voltara para a tela principal quando chamar a view passando P=H
-		//impedir que o usuario delete a tela onde esta
+		
+		else{//caso ha procure na lista desta tela onde achou
+			a=get_app(p->L, app);
+			printf("tela: %d\t %s\n",p->info, a->nome);
+			p->L=del(a, p->L);//analisa cada um dos casos de remoção
+			p->cont--;//diminui em um app de onde achou
+			
+			//caso especifico de remoção de tela, foi removido o unico app da ultima tela
+			if(p->L==NULL && p!=H){
+				p->bef->next=NULL;
+				free(p);//deletar a tela onde não tem mais nada, desde que não seje a HEAD
+			}
+			else{
+				mov(p);//desde que não caia no caso especifico de remoção de tela
+			}
+		}
+		
+		printf("continuar: d(deletar mais apps) !d(parar)\n");
+		fflush(stdin);
+		scanf("%c", &op);
+		system("cls");
+		desinstala(H, op);
+		return H;//voltar para a tela principal 
 	}
+	return H; //quando op for != 'd'
 }
 
 int main(){
@@ -286,33 +315,26 @@ int main(){
 	while(op!='p'){
 		switch(op){
 			case 'i':
-				printf("instalando\n");
-				printf("**************************************\n");
-				char nome[20];
-				printf("nome do app: ");
-				fflush(stdin);
-				gets(nome);
-				instala(H, nome);
+				P=instala(H, op);
 				break;
 			case 'd':
-				printf("deletanto\n");
-				printf("**************************************\n");
-				char app[20];
-				printf("nome do app: ");
-				fflush(stdin);
-				gets(app);
-				P=desinstala(H, app);
+				P=desinstala(H, op);//onde H=tela de inicio e op='d'
 				break;
 			case 'b':
-				P=before(P);
-				printf("tela atual: %x\n\n", P);
+				P=go(P, op);//op sera 'b' validado pela função opera
+				printf("tela atual: %d\n\n", P->info);
 				break;
 			case 'n':
-				P=next(P);
-				printf("tela atual: %x\n\n", P);
+				P=go(P, op);//tambem foi validado, o resto deixa para a funçao go()interpretar
+				printf("tela atual: %d\n\n", P->info);
 				break;
 			case 'e':
-				jogo();
+				if(busca(H, "jogo da velha")==NULL){
+					printf("--> precisa instalar o jogo da velha\n");
+				}
+				else{
+					jogo();
+				}
 				break;	
 		}
 		getch();

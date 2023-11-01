@@ -39,39 +39,45 @@ void zerar(char M[3][3]){
 void jogada(char M[3][3], char value){
 	int l,c;
 		do{ 
-			printa(M);
-			printf("linha/coluna de 1 a 3: ");
-			scanf("%d %d", &l, &c);
-			if(M[c-1][l-1]!='0'){
-				printf("\nja foi preenchido\n");
-				getch();
-				system("cls");
-			}		
-		}while((c>3 && l>3 && c<1 && l<1) || M[l-1][c-1]!='0');//condiçoes falsas
+			do{//validação do numero a ser escolhido
+				printa(M);
+				printf("linha:de 1 a 3:  ");
+				scanf("%d", &l);
+				printf("coluna: de 1 a 3:  ");
+				scanf("%d", &c);
+			}while(c>3 || c<1 || l>3 || l<1);//condições falsas
+			//validação do campo que passou no teste anterior
+			system("cls");		
+		}while(M[l-1][c-1]!='0');//condiçoes falsas
 	M[l-1][c-1]=value;
 }
-
 void jogo(){
+	int cont=0;
 	int A=1, B=1;
 	char M[3][3];
 	zerar(M);
 	do{
 		printf("jogador A: \n");
 		jogada(M, 'x');
+		cont++;
 		A=vitoria(M);
-		if(A==1){//somente se não houve vitoria anterior
+		if(A==1 && cont<9){//somente se não houve vitoria anterior
 			system("cls");
 			printf("jogador B: \n");
 			jogada(M, '@');
+			cont++;
 			B=vitoria(M);
 		}
 		system("cls");
-	}while(A==1 && B==1);
+	}while(A==1 && B==1 && cont<9);
 	printa(M);
+	if(cont>=9){
+		printf("empate!");
+	}
 	if(A==0){
 		printf("A ganhou!");
 	}
-	else{
+	if(B==0){
 		printf("B ganhou!");
 	}
 }

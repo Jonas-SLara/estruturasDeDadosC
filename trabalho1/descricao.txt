@@ -1,0 +1,47 @@
+	1-organização das telas:
+
+		as telas estão organizadas de maneira duplamente encadeda,a crição e remoção
+	delas é identica a da pilha pois apenas a ultima tela criada pode não estar 	
+	com 6apps e a ultima portanto, sera a primeira a sair. A cada tela lotada, é criada
+	uma nova após a  ultima criada caso se dejesa instalar um novo app
+		Além disso só se pode ir de tela em tela sendo que o alogoritmo impede de ir
+	para uma tela ainda não criada, cada tela possui no máximo 6 apps sendo uma estrutura 
+	de lista duplamente encadeada pois não é como a tela em que se remove a ultima criada
+		A função desintala será abordada mais para frente
+
+	2-a aplicação instala
+
+		ela é quebrada em diversar funções,algumas recursivas, com a finalidade de 
+	instalar um app e verificar se é nescessário a crição de uma nova tela, chamando uma
+	função própia para isso, a maneira que o app é criado é sempre no final da ultima tela criada
+	e no final de sua lista de apps
+		Há funções própia para achar a última tela e o ultimo app que foram usados em outras
+	parte do algoritmo,
+	Além disso,não é permitido inserir elementos repetidos, para isso uma função recursiva de busca
+	foi implementada, caso já exista é enviado um feedback sobre a ocorrência
+		A implementação de várias funções serviu de base para abstrair esta aplicação
+	esta por sua vez é uma função recursiva que permite a inserção de elementos até uma
+	condição de parada(quando o usuario querer)
+
+	3-a aplicação desintala
+
+		semelhante a instala, ela possui diversas funções, começando com uma busca de onde há a tela que tem o elemento
+	a ser removido, e se caso não for nulo,NÃO procede a busca do app a ser removido, de outro jeito
+	é chamado a função DEL que trata cada caso de remoção, entre eles vale citar o da remoção do unico 
+	elemento da ultima tela  que não seguira com a função recursiva MOV como nos outros casos, esta
+	apenas segue com a remoção desta tela
+	a função desinstala é recursiva e permite a remoção de elementos até a solitação de parada 
+
+	
+	4-pecularidades
+
+		O algoritmo inicia com 5 apps instalados, através de uma função inicializar que já aloca a tela 
+	principal na memória.Mesmo que a tela principal fique vazia, ela não é desinstalada como as demais,
+		Informações das operaçõe entre elas são mostradas em uma função OPERAR que devolve um tipo char
+	de qualquer operação a ser feita que entrara em um switch case  e após isto uma nova operação até 
+	que digite p(codigo de parada)
+		O codigo 'e' inicia um jogo da velha que esta dentro da biblioteca jogo.h
+	com as devidas funçõe, mas o algorimto IMPEDE de executa-lo caso não o tem instalado
+		não se diferencia letras maiusculas de minusculas, por exemplo APP1 e app1 são 
+	tratados como a mesma palavra
+	
