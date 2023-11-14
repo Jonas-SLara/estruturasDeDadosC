@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-/*funções: inserir elementos na arvore, imprimir arvore com cada modulo,
+/*funï¿½ï¿½es: inserir elementos na arvore, imprimir arvore com cada modulo,
 buscar elementos na arvore, calcular altura da arvore*/
 
 typedef struct arvore{
@@ -10,7 +10,7 @@ typedef struct arvore{
 }arvore;
 
 arvore *insere_v1(arvore *r, int c){
-	//caso base, quando chegar na recursão, ou quando inicia uma arvore
+	//caso base, quando chegar na recursï¿½o, ou quando inicia uma arvore
 	if(r==NULL){
 		arvore *aux=(arvore*)malloc(sizeof(arvore));
 		aux->direita=NULL;
@@ -27,11 +27,11 @@ arvore *insere_v1(arvore *r, int c){
 		else{
 			r->direita = insere_v1(r->direita, c);
 		}
-		return r;//desempilha funções até chegar no nó raiz de volta e passala para a main
+		return r;//desempilha funï¿½ï¿½es atï¿½ chegar no nï¿½ raiz de volta e passala para a main
 	}
 }
 
-void insere_v2(arvore **r, int c){//tipo de inserção sem retorno, mais eficiente
+void insere_v2(arvore **r, int c){//tipo de inserï¿½ï¿½o sem retorno, mais eficiente
 	if(*r==NULL){
 		*r=(arvore*)malloc(sizeof(arvore));
 		(*r)->direita=NULL;
@@ -51,7 +51,7 @@ void insere_v2(arvore **r, int c){//tipo de inserção sem retorno, mais eficiente
 
 void imprime_v1(arvore *r){//pre fixado
 	if(r!=NULL){
-		printf("%d", r->valor);
+		printf("%d  ", r->valor);
 		imprime_v1(r->esquerda);
 		imprime_v1(r->direita);
 	}
@@ -60,7 +60,7 @@ void imprime_v1(arvore *r){//pre fixado
 void imprime_v2(arvore *r){//pos fixado
 	if(r!=NULL){
 		imprime_v2(r->esquerda);
-		printf("%d ", r->valor);
+		printf("%d   ", r->valor);
 		imprime_v2(r->direita);
 	}
 }
@@ -98,6 +98,6 @@ int main(){
 	imprime_v1(raiz);
 	printf("\n");
 	int altura=calcula_altura(raiz);
-	printf("%d", altura);
+	printf("%d hello world", altura);
 	return 0;
 }
